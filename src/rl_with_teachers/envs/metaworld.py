@@ -51,20 +51,20 @@ class MetaWorldEnv:
         return None
 
     def make_teachers(self, type, noise=None, drop=0, num_random=0):
-        # paths = ['/data2/zj/NewMTRL/logs/90f2497ff4cee27c0d30fbc66e6ba205f94808ba4ea16e057df58e73_issue_None_seed_43_2/model',
-        #          '/data2/zj/NewMTRL/logs/90f2497ff4cee27c0d30fbc66e6ba205f94808ba4ea16e057df58e73_issue_None_seed_43_2/model',
-        #          '/data2/zj/NewMTRL/logs/90f2497ff4cee27c0d30fbc66e6ba205f94808ba4ea16e057df58e73_issue_None_seed_253/model']
-        # teachers = []
-        # with open('./config.txt', 'rb') as f:
-        #     config = pickle.load(f)
-        # for i, p in enumerate(paths):
-        #     if i==1:
-        #         agent = metateacher.MTRLAgent(index=i, path=p,action_dim=self.action_space.shape[0],features=self.observation_space.shape[0],config=config)
-        #         teachers.append(agent)
-
-
+        paths = ['/data2/zj/NewMTRL/logs/90f2497ff4cee27c0d30fbc66e6ba205f94808ba4ea16e057df58e73_issue_None_seed_43_2/model',
+                 '/data2/zj/NewMTRL/logs/90f2497ff4cee27c0d30fbc66e6ba205f94808ba4ea16e057df58e73_issue_None_seed_43_2/model',
+                 '/data2/zj/NewMTRL/logs/90f2497ff4cee27c0d30fbc66e6ba205f94808ba4ea16e057df58e73_issue_None_seed_253/model']
         teachers = []
-        teachers.append(metateacher.ScriptAgent(p.SawyerPushV2Policy()))
+        with open('./config.txt', 'rb') as f:
+            config = pickle.load(f)
+        for i, p in enumerate(paths):
+            if i==1:
+                agent = metateacher.MTRLAgent(index=i, path=p,action_dim=self.action_space.shape[0],features=self.observation_space.shape[0],config=config)
+                teachers.append(agent)
+
+
+        # teachers = []
+        # teachers.append(metateacher.ScriptAgent(p.SawyerPushV2Policy()))
 
         return teachers
 
