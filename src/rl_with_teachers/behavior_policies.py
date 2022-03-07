@@ -364,7 +364,7 @@ class CriticBehaviorPolicy(RLwTeachersBehaviorPolicy):
             action = teacher(obs)
             qs.append(self.critic_model.eval_q_value(obs[None], action[None]))
             actions.append(action)
-        logging.info('Critic evaluation of policy actions: %s'%str(np.squeeze(qs)))
+        #logging.info('Critic evaluation of policy actions: %s'%str(np.squeeze(qs)))
 
         agent_choice = np.argmax(qs)
         self.num_choice_steps+=1
@@ -410,9 +410,9 @@ class ACTeachBehaviorPolicy(RLwTeachersBehaviorPolicy):
             qs.append(self.uncertainty_model.sample_q_value(obs[None], action[None]))
             actions.append(action)
 
-        logging.info('ACT choosing action for state %s'%str(np.squeeze(obs)))
-        logging.info('Policy actions at state are %s'%str(actions))
-        logging.info('Critic evaluation of policy actions is %s'%str(np.squeeze(qs)))
+        #logging.info('ACT choosing action for state %s'%str(np.squeeze(obs)))
+        #logging.info('Policy actions at state are %s'%str(actions))
+        #logging.info('Critic evaluation of policy actions is %s'%str(np.squeeze(qs)))
 
         max_q_choice = np.argmax(qs)
         if self.current_policy_choice is None:
@@ -433,15 +433,15 @@ class ACTeachBehaviorPolicy(RLwTeachersBehaviorPolicy):
             # Calculation of probability Q of new policy is in fact better than the policy last used
             prob_greater = 1.0 - (1.0 + math.erf((0.0 - diff_mean + 0.000000000001)/ math.sqrt(diff_var*2.0))) / 2.0
 
-            logging.info('Considering switch %d->%d'%(self.current_policy_choice, max_q_choice))
-            logging.info('Mean and var of policy %d: %f %f'%(self.current_policy_choice, current_mean, current_var))
-            logging.info('Mean and var of policy %d: %f %f'%(max_q_choice, new_mean, new_var))
-            logging.info('Diff mean %f and var %f, probability worth it is %f'%(diff_mean, diff_var, prob_greater))
+            # logging.info('Considering switch %d->%d'%(self.current_policy_choice, max_q_choice))
+            # logging.info('Mean and var of policy %d: %f %f'%(self.current_policy_choice, current_mean, current_var))
+            # logging.info('Mean and var of policy %d: %f %f'%(max_q_choice, new_mean, new_var))
+            # logging.info('Diff mean %f and var %f, probability worth it is %f'%(diff_mean, diff_var, prob_greater))
 
             commit_thresh = self.commitment_thresh
             if self.decay_commitment:
                 commit_thresh*= self.commitment_decay_coeff**self.num_steps_commited
-            logging.info('Num steps same policy %d, threshold at %f'%(self.num_steps_commited, commit_thresh))
+            # logging.info('Num steps same policy %d, threshold at %f'%(self.num_steps_commited, commit_thresh))
 
             if prob_greater > commit_thresh: # If confident enough, make the switch
                 agent_choice = max_q_choice
@@ -454,7 +454,7 @@ class ACTeachBehaviorPolicy(RLwTeachersBehaviorPolicy):
 
         self.current_policy_choice = agent_choice
         self.num_choice_steps+=1
-
+        agent_choice = 0
         return agent_choice, actions[agent_choice], qs[agent_choice]
 
     def choose_actions_greedy(self, obs):
@@ -469,6 +469,7 @@ class ACTeachBehaviorPolicy(RLwTeachersBehaviorPolicy):
             all_qs.append(teacher_qs)
         all_qs = np.squeeze(np.stack(all_qs, axis=-1))
         agent_choices = np.squeeze(np.argmax(all_qs, axis=-1))
+        agent_choices = np.zeros_like(agent_choices)
         return agent_choices, all_actions[np.arange(len(agent_choices)), tuple(agent_choices)], all_qs[:,agent_choices]
 
     def reset(self):

@@ -398,7 +398,7 @@ epsilon=1e-08)
 
                             # Execute next action.
                             new_obs, reward, done, _ = self.env.step(action * np.abs(self.action_space.low))
-                            logging.info('At state %s chose action %s from policy %d for reward of %f'%(str(obs), str(action), policy_choice, reward))
+                            # logging.info('At state %s chose action %s from policy %d for reward of %f'%(str(obs), str(action), policy_choice, reward))
 
                             if writer is not None:
                                 ep_rew = np.array([reward]).reshape((1, -1))
@@ -479,9 +479,11 @@ epsilon=1e-08)
 
                         # Evaluate.
                         eval_episode_rewards = []
+                        eval_success = []
                         eval_qs = []
                         if self.eval_env is not None:
                             eval_episode_reward = 0.0
+                            success = 0.0
                             eval_steps = 0
                             discount = 1.0
                             self.eval_env.reset()
@@ -491,10 +493,12 @@ epsilon=1e-08)
                                 if self.render_eval and first_rollout_eval:
                                     self.eval_env.render()
                                 eval_action, eval_q = self._policy(eval_obs, apply_noise=False, compute_q=True)
-                                eval_obs, eval_r, eval_done, _ = self.eval_env.step(eval_action *
+                                eval_obs, eval_r, eval_done, info = self.eval_env.step(eval_action *
                                                                                     np.abs(self.action_space.low))
                                 eval_steps+=1
                                 eval_episode_reward += discount*eval_r
+                                if 'success' in info.keys():
+                                    success += info['success']
                                 discount*=self.gamma
 
                                 eval_qs.append(eval_q)
@@ -506,9 +510,11 @@ epsilon=1e-08)
                                     first_rollout_eval = False
                                     yield eval_episode_reward
                                     eval_episode_rewards.append(eval_episode_reward)
+                                    eval_success.append(float(success))
                                     eval_episode_rewards_history.append(eval_episode_reward)
                                     eval_episode_reward = 0.
                                     discount = 1.0
+                                    success = 0
                                     eval_steps=1
 
                         # Save the model every hour.
@@ -554,6 +560,7 @@ epsilon=1e-08)
                     # Evaluation statistics.
                     if self.eval_env is not None:
                         combined_stats['eval/return'] = np.mean(eval_episode_rewards)
+                        combined_stats['eval/success'] = np.mean(eval_success)
                         combined_stats['eval/return_history'] = np.mean(eval_episode_rewards_history)
                         combined_stats['eval/Q'] = np.mean(eval_qs)
                         combined_stats['eval/episodes'] = len(eval_episode_rewards)

@@ -1,0 +1,6 @@
+include:
+  - cfg/metaworld/base/train_dropout.yaml
+  - cfg/metaworld/teachers/partial_complete_suboptimal.yaml
+  - cfg/behavior_policies/acteach.yaml
+
+experiment_name: efficiency_partial_complete_suboptimal_ours

@@ -13,7 +13,7 @@ def make_envs(env_id, do_eval, seed, conf, normalize_observations=False, normali
         base_env = base_env.env
     for attr in env_params:
         setattr(base_env, attr, env_params[attr])
-    env = bench.Monitor(env, logger.get_dir(), allow_early_resets=True)
+    env = bench.Monitor(env, logger.get_dir(), allow_early_resets=True,info_keywords=('success',))
 
     # Seed everything to make things reproducible.
     logger.info('seed={}, logdir={}'.format(seed, logger.get_dir()))
@@ -31,7 +31,8 @@ def make_envs(env_id, do_eval, seed, conf, normalize_observations=False, normali
             base_eval_env = base_eval_env.env
         for attr in env_params:
             setattr(base_eval_env, attr, env_params[attr])
-        eval_env = bench.Monitor(eval_env, os.path.join(logger.get_dir(), 'gym_eval'), allow_early_resets=True)
+        # eval_env = bench.Monitor(eval_env, os.path.join(logger.get_dir(), 'gym_eval'), allow_early_resets=True)
+        eval_env = bench.Monitor(eval_env, os.path.join(logger.get_dir(), 'gym_eval'), allow_early_resets=True,info_keywords=('success',))
         eval_env.seed(seed)
         eval_env.base_env = base_eval_env
     else:
